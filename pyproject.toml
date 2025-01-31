@@ -26,6 +26,7 @@ dev = [
     "pdfminer>=20191125",
     "pdfminer-six>=20240706",
     "plotly>=6.0.0",
+    "pytest>=8.3.4",
     "ragas>=0.2.12",
     "requests>=2.32.3",
     "sentence-transformers>=3.4.1",
