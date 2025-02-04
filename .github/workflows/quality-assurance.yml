@@ -30,13 +30,14 @@ jobs:
   
     steps:
       - uses: actions/checkout@v4
-      - name: Build Docker image
-        run: docker build -t electify .
-      - name: Run Docker container   
-        run: docker run -d --name electify_container -p 8080:8080 electify
-      - name: Install playwright
-        run: docker exec electify_container uv run playwright install chromium --with-deps
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: download database
+        run: |
+          apt-get update && apt-get install -y wget unzip
+          mkdir -p data/manifestos/chroma/openai/
+          wget -O openai.zip "https://huggingface.co/datasets/cliedl/electify/resolve/main/openai.zip?download=true"
+          unzip openai.zip -d data/manifestos/chroma/openai/ && rm openai.zip
+        
       - name: Run tests
-        run: docker exec electify_container uv run pytest tests
-      - name: Stop and remove Docker container
-        run: docker stop electify_container && docker rm electify_container
+        run: uv run pytest tests
