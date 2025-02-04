@@ -6,9 +6,9 @@ WORKDIR /app
 
 # Download and unzip chroma db
 RUN apt-get update && apt-get install -y wget unzip && \
-    mkdir -p /app/data/manifestos/chroma && \
+    mkdir -p /app/data/manifestos/chroma/openai/ && \
     wget -O openai.zip "https://huggingface.co/datasets/cliedl/electify/resolve/main/openai.zip?download=true" && \
-    unzip openai.zip -d /app/data/manifestos/chroma/ && rm openai.zip
+    unzip openai.zip -d /app/data/manifestos/chroma/openai/ && rm openai.zip
 
 # Copy content of current directory in working directory
 COPY . /app
