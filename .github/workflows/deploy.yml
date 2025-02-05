@@ -1,0 +1,40 @@
+name: 3. Deploy to Azure
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  deploy:
+    name: Deploy to Azure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build Docker Image
+        run: |
+          docker build --platform linux/amd64 -t cliedl/electify:${{ github.event.release.tag_name }} .
+
+      - name: Push Docker Image
+        run: |
+          docker push cliedl/electify:${{ github.event.release.tag_name }}
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Container Apps
+        run: |
+          az containerapp update \
+            --name electify \
+            --resource-group electify-app \
+            --image cliedl/electify:${{ github.event.release.tag_name }}

@@ -1,0 +1,48 @@
+name: 2. Draft Release
+
+on:
+  push:
+    branches:
+      - github-actions-test
+  pull_request:
+    types:
+      - closed
+    branches:
+      - github-actions-test
+
+jobs:
+  draft_release:
+    name: Create Draft Release
+    needs: [quality, tests]
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.bump_version.outputs.new_version }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Fetch all tags
+        run: git fetch --tags
+
+      - name: Determine Next Version
+        id: bump_version
+        run: |
+          LATEST_TAG=$(git tag --sort=-v:refname | head -n 1)
+          if [[ -z "$LATEST_TAG" ]]; then
+            NEW_VERSION="0.0.1"
+          else
+            IFS='.' read -r -a PARTS <<< "$LATEST_TAG"
+            NEW_VERSION="${PARTS[0]}.${PARTS[1]}.$((PARTS[2] + 1))"
+          fi
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Draft Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.NEW_VERSION }}
+          name: Release ${{ env.NEW_VERSION }}
+          body: "Automated draft release for version ${{ env.NEW_VERSION }}"
+          draft: true
+          prerelease: false
