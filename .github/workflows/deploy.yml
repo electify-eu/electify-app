@@ -1,9 +1,8 @@
 name: 3. Deploy to Azure
 
 on:
-  push:
-    branches:
-      - github-actions-test
+  release:
+    types: [published]
 
   # enables manual triggers
   workflow_dispatch:
@@ -19,17 +18,38 @@ jobs:
     runs-on: ubuntu-latest
     needs: []
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ vars.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Log in to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Get release version
+      id: get_version
+      run: |
+        if [ "${{ github.event_name }}" = "release" ]; then
+          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        else
+          echo "version=${{ inputs.release_id }}" >> $GITHUB_OUTPUT
+        fi
 
-      - name: Deploy to Azure Container Apps
-        run: |
-          az containerapp update \
-            --name electify \
-            --resource-group electify-app \
-            --image cliedl/electify:1.0.1
+    - name: Build Docker Image
+      run: |
+        docker build --platform linux/amd64 -t cliedl/electify:${{ steps.get_version.outputs.version }} .
+
+    - name: Push Docker Image
+      run: |
+        docker push cliedl/electify:${{ steps.get_version.outputs.version }}
+        
+    - name: Log in to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Build and deploy Container App
+      uses: azure/container-apps-deploy-action@v1
+      with:
+        acrName: myregistry
+        containerAppName: my-container-app
+        resourceGroup: my-rg
+        imageToDeploy: cliedl/electify:${{ steps.get_version.outputs.version }}

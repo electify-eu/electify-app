@@ -3,8 +3,8 @@ name: 2. Draft Release
 on:
   push:
     branches:
-      - github-actions-test
       - main
+      - github-actions-test
   pull_request:
     types:
       - closed
