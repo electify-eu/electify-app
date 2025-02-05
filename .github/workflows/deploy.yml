@@ -1,9 +1,9 @@
 name: 3. Deploy to Azure
 
 on:
-  release:
-    types:
-      - published
+  push:
+    branches:
+      - github-actions-test
 
   # enables manual triggers
   workflow_dispatch:
@@ -30,11 +30,11 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build --platform linux/amd64 -t cliedl/electify:${{ github.event.release.tag_name }} .
+          docker build --platform linux/amd64 -t cliedl/electify:1.0.1 .
 
       - name: Push Docker Image
         run: |
-          docker push cliedl/electify:${{ github.event.release.tag_name }}
+          docker push cliedl/electify:1.0.1
 
       - name: Log in to Azure
         uses: azure/login@v1
@@ -46,4 +46,4 @@ jobs:
           az containerapp update \
             --name electify \
             --resource-group electify-app \
-            --image cliedl/electify:${{ github.event.release.tag_name }}
+            --image cliedl/electify:1.0.1

@@ -3,6 +3,7 @@ name: 2. Draft Release
 on:
   push:
     branches:
+      - github-actions-test
       - main
   pull_request:
     types:
