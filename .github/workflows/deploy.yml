@@ -5,10 +5,18 @@ on:
     types:
       - published
 
+  # enables manual triggers
+  workflow_dispatch:
+    inputs:
+      release_id:
+        description: 'Release tag id to be deployed'
+        required: true
+        type: string
 jobs:
   deploy:
     name: Deploy to Azure
     runs-on: ubuntu-latest
+    needs: []
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
