@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - 'main'
-      - 'bundestag-2025'
-      - 'github-actions-test'
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 

@@ -3,12 +3,12 @@ name: 2. Draft Release
 on:
   push:
     branches:
-      - github-actions-test
+      - main
   pull_request:
     types:
       - closed
     branches:
-      - github-actions-test
+      - main
 
   # enables manual triggers
   workflow_dispatch:
