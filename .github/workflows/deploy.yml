@@ -12,6 +12,7 @@ on:
         description: 'Release tag id to be deployed'
         required: true
         type: string
+
 jobs:
   deploy:
     name: Deploy to Azure
