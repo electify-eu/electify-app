@@ -1,8 +1,13 @@
 name: 3. Deploy to Azure
 
-on:
-  release:
-    types: [published]
+# on:
+#   release:
+#     types: [published]
+
+on: 
+    push:
+        branches:
+            - github-workflows
 
   # enables manual triggers
   workflow_dispatch:
@@ -53,7 +58,7 @@ jobs:
     - name: Build and deploy Container App
       uses: azure/container-apps-deploy-action@v1
       with:
-        acrName: myregistry
-        containerAppName: my-container-app
-        resourceGroup: my-rg
+        acrName: docker.io
+        containerAppName: electify
+        resourceGroup: electify-app
         imageToDeploy: cliedl/electify:${{ steps.get_version.outputs.version }}
