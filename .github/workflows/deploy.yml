@@ -57,7 +57,6 @@ jobs:
     - name: Build and deploy Container App
       uses: azure/container-apps-deploy-action@v1
       with:
-        acrName: dockerhub
         containerAppName: electify
         resourceGroup: electify-app
         imageToDeploy: cliedl/electify:${{ steps.get_version.outputs.version }}
